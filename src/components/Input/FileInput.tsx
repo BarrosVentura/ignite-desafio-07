@@ -131,6 +131,7 @@ const FileInputBase: ForwardRefRenderFunction<
       cancelToken.cancel('Cancelled image upload.');
       setCancelToken(null);
     }
+    console.log(name);
   }, [cancelToken, error, isSending]);
 
   return (

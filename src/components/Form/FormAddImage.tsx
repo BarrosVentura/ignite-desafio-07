@@ -18,6 +18,11 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
   const formValidations = {
     image: {
+      required: 'Imagem requerida',
+      // validate: {
+      //   lessThen10MB: e => console.log(e),
+      // },
+      onCHange: e => console.log(e),
       // TODO REQUIRED, LESS THAN 10 MB AND ACCEPTED FORMATS VALIDATIONS
     },
     title: {
@@ -37,7 +42,14 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   );
 
   const { register, handleSubmit, reset, formState, setError, trigger } =
-    useForm();
+    useForm({
+      resolver: (data, context) => {
+        return {
+          values: data,
+          errors: formValidations,
+        };
+      },
+    });
   const { errors } = formState;
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
@@ -61,6 +73,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
+          {...register('image')}
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
         />
