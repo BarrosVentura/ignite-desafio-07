@@ -65,7 +65,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
     try {
       if (!imageUrl || imageUrl.length === 0) {
-        return toast({
+        toast({
           title: 'Imagem não adicionada',
           description:
             'É preciso adicionar e aguardar o upload de uma imagem antes de realizar o cadastro.',
@@ -73,6 +73,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           duration: 9000,
           isClosable: true,
         });
+        return;
       }
       mutation.mutate({
         url: imageUrl,

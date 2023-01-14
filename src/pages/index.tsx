@@ -59,7 +59,9 @@ export default function Home(): JSX.Element {
   });
 
   const formattedData = useMemo(() => {
-    // console.log(data);
+    if (data) {
+      return data.pages[0].data.data;
+    }
   }, [data]);
 
   if (isLoading) {
@@ -76,7 +78,7 @@ export default function Home(): JSX.Element {
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
         <h1>opa</h1>
-        {/* <CardList cards={formattedData} /> */}
+        <CardList cards={formattedData} />
         {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
       </Box>
     </>
