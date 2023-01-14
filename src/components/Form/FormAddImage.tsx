@@ -26,7 +26,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         lessThen10MB: e =>
           e[0].size <= 10485760 || 'O arquivo deve ser menor que 10MB',
         acceptedFormats: e =>
-          e[0].type.match(/image\/(jpeg|png|gif)/) ||
+          e[0].type.search(/image\/(jpeg|png|gif)/) >= 0 ||
           'Somente são aceitos arquivos PNG, JPEG e GIF',
       },
     },
@@ -54,19 +54,51 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const mutation = useMutation(
     // TODO MUTATION API POST REQUEST,
     {
-      // TODO ONSUCCESS MUTATION
+      mutationFn: newImage =>
+        api.post('http://localhost:3000/api/images', {
+          ...newImage,
+        }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['images'] }),
     }
   );
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
     try {
-      // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
-      // TODO EXECUTE ASYNC MUTATION
-      // TODO SHOW SUCCESS TOAST
+      if (!imageUrl || imageUrl.length === 0) {
+        return toast({
+          title: 'Imagem não adicionada',
+          description:
+            'É preciso adicionar e aguardar o upload de uma imagem antes de realizar o cadastro.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+      mutation.mutate({
+        url: imageUrl,
+        title: data.title,
+        description: data.description,
+      });
+      toast({
+        title: 'Imagem cadastrada',
+        description: 'Sua imagem foi cadastrada com sucesso.',
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      });
     } catch {
-      // TODO SHOW ERROR TOAST IF SUBMIT FAILED
+      toast({
+        title: 'Falha no cadastro',
+        description: 'Ocorreu um erro ao tentar cadastrar a sua imagem.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
     } finally {
-      // TODO CLEAN FORM, STATES AND CLOSE MODAL
+      reset();
+      setImageUrl('');
+      setLocalImageUrl('');
+      closeModal();
     }
   };
 
