@@ -42,7 +42,9 @@ export default function Home(): JSX.Element {
   }
 
   function getNextPageParam(lastRequest): number | null {
-    const { after } = lastRequest;
+    const {
+      data: { after },
+    } = lastRequest;
     if (after) return after;
     return null;
   }
@@ -58,9 +60,9 @@ export default function Home(): JSX.Element {
     getNextPageParam,
   });
 
-  const formattedData = useMemo(() => {
+  const formattedData: FormattedDataResponse[] = useMemo(() => {
     if (data) {
-      return data.pages[0].data.data;
+      return data.pages.map(page => page.data.data).flat();
     }
   }, [data]);
 
@@ -77,8 +79,13 @@ export default function Home(): JSX.Element {
       <Header />
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
-        <h1>opa</h1>
         <CardList cards={formattedData} />
+        {hasNextPage && (
+          <Button onClick={() => fetchNextPage()} marginTop={10}>
+            {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
+          </Button>
+        )}
+
         {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
       </Box>
     </>
