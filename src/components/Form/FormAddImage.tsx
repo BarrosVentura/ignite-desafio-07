@@ -1,5 +1,5 @@
 import { Box, Button, Stack, useToast } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { FieldError, useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -15,21 +15,38 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [imageUrl, setImageUrl] = useState('');
   const [localImageUrl, setLocalImageUrl] = useState('');
   const toast = useToast();
+  const { register, handleSubmit, reset, formState, setError, trigger } =
+    useForm();
+  const { errors } = formState;
 
   const formValidations = {
     image: {
-      required: 'Imagem requerida',
-      // validate: {
-      //   lessThen10MB: e => console.log(e),
-      // },
-      onCHange: e => console.log(e),
-      // TODO REQUIRED, LESS THAN 10 MB AND ACCEPTED FORMATS VALIDATIONS
+      required: 'Arquivo obrigatório',
+      validate: {
+        lessThen10MB: e =>
+          e[0].size <= 10485760 || 'O arquivo deve ser menor que 10MB',
+        acceptedFormats: e =>
+          e[0].type.match(/image\/(jpeg|png|gif)/) ||
+          'Somente são aceitos arquivos PNG, JPEG e GIF',
+      },
     },
     title: {
-      // TODO REQUIRED, MIN AND MAX LENGTH VALIDATIONS
+      required: 'Título obrigatório',
+      minLength: {
+        value: 2,
+        message: 'Mínimo de 2 caracteres',
+      },
+      maxLength: {
+        value: 20,
+        message: 'Máximo de 20 caracteres',
+      },
     },
     description: {
-      // TODO REQUIRED, MAX LENGTH VALIDATIONS
+      required: 'Descrição obrigatória',
+      maxLength: {
+        value: 65,
+        message: 'Máximo de 65 caracteres',
+      },
     },
   };
 
@@ -40,17 +57,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       // TODO ONSUCCESS MUTATION
     }
   );
-
-  const { register, handleSubmit, reset, formState, setError, trigger } =
-    useForm({
-      resolver: (data, context) => {
-        return {
-          values: data,
-          errors: formValidations,
-        };
-      },
-    });
-  const { errors } = formState;
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
     try {
@@ -73,21 +79,26 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
-          {...register('image')}
-          // TODO SEND IMAGE ERRORS
-          // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
+          error={errors.image as FieldError}
+          {...register('image', {
+            ...formValidations.image,
+          })}
         />
 
         <TextInput
           placeholder="Título da imagem..."
-          // TODO SEND TITLE ERRORS
-          // TODO REGISTER TITLE INPUT WITH VALIDATIONS
+          error={errors.title as FieldError}
+          {...register('title', {
+            ...formValidations.title,
+          })}
         />
 
         <TextInput
           placeholder="Descrição da imagem..."
-          // TODO SEND DESCRIPTION ERRORS
-          // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
+          error={errors.description as FieldError}
+          {...register('description', {
+            ...formValidations.description,
+          })}
         />
       </Stack>
 
